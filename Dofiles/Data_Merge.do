@@ -1,7 +1,7 @@
 // This do-file merges data of CPS, School Closure, and Childcare Closure samples.
 
 clear // Clears the existing data
-cd "C:\Users\theou\Documents\School Work\UW Madison\Spring 2022\Econ 580\Data\Scratch"
+cd "C:\Users\theou\OneDrive\UW Madison\Spring 2022\Econ 580\Data\Scratch"
 
 /*
 	This section cleans the Population dataset
@@ -44,12 +44,13 @@ gen date_m = ym(year, month)
 format date_m %tm
 xtset county date_m // Converts to a panel data by countyfips3
 
-gen i_closed = (share_all_closed_50 > .50) // Locates the months the county closed
+gen i_closed = (share_all_closed_50 > 0.75) // Locates the months the county closed
 replace i_closed = 1 if i_closed == 0 & l.i_closed == 1 
+by county: gen i_closed_flag = (i_closed == 1 & L.i_closed == 0)
 
-gen i_reopen = (share_all_closed_50 < 0.1 & l.i_closed == 1) // Locates the months when the county reopened
+gen i_reopen = ( share_all_closed_50 < 0.5 & l.i_closed == 1) // Locates the months when the county reopened
 replace i_reopen = 1 if i_reopen == 0 & l.i_reopen == 1
-
+by county: gen i_reopen_flag = (i_reopen == 1 & L.i_reopen == 0)
 replace i_closed = 0 if i_reopen == 1
 
 
@@ -82,10 +83,11 @@ xtset county date_m // Converts to a panel data by countyfips3
 
 gen j_closed = (share_closed_50 > .50) // Locates the months the county closed
 replace j_closed = 1 if j_closed == 0 & l.j_closed == 1 
+by county: gen j_closed_flag = (j_closed == 1 & L.j_closed == 0)
 
 gen j_reopen = ( share_closed_50 < 0.1 & l.j_closed == 1) // Locates the months when the county reopened
 replace j_reopen = 1 if j_reopen == 0 & l.j_reopen == 1
-
+by county: gen j_reopen_flag = (j_reopen == 1 & L.j_reopen == 0)
 replace j_closed = 0 if j_reopen == 1
 
 
